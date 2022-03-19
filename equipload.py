@@ -2,41 +2,57 @@ import math
 
 weight = 30.0
 threshold = 0.299
-
-erd1 = 1.05
-erd2 = 1.065
-erd3 = 1.08
-
-arsenal1 = 1.15
-arsenal2 = 1.17
-arsenal3 = 1.19
  
-def ceil2(n):
-    return math.ceil(100 * n) / 100
- 
-def with_talisman(weight, threshold, talisman1=1, talisman2=1):
-    return ceil2(weight / threshold / (talisman1 * talisman2))
 
 talisman_list_1 = [
-    ('None           ', 1),
-    ('Erdtree-favor  ', erd1),
-    ('Erdtree-favor+1', erd2),
-    ('Erdtree-favor+2',erd3)]
+    ('', 1),
+    ('Erdtree-favor', 1.05),
+    ('Erdtree-favor+1', 1.065),
+    ('Erdtree-favor+2',1.08)]
     
 talisman_list_2 = [
-    ('None     ', 1),
-    ('Arsenal  ', arsenal1),
-    ('Arsenal+1', arsenal2),
-    ('Great-Jar', arsenal3)]
+    ('', 1),
+    ('Arsenal', 1.15),
+    ('Arsenal+1', 1.17),
+    ('Great-Jar', 1.19)]
+ 
+def with_talisman(
+    weight, 
+    threshold, 
+    talisman1=1, 
+    talisman2=1):
+    return math.ceil(100 * weight / threshold / (talisman1 * talisman2))/ 100
 
-def talisman_matrix(weight, talisman_list1, talisman_list2):
-    for name1, effect1 in talisman_list1:
-        for name2, effect2 in talisman_list2:
-            print(name1, '\t', name2, '\t', with_talisman(weight, threshold, effect1, effect2), '\n')        
 
-print(
-    'Needed Equip load for fast roll', '\n',
-    'Talisman 1     \t','Talisman 2     \n'
-)
+def cross_talisman_calculation(
+    weight, 
+    list_1, 
+    list_2,
+    sort_by=lambda element: element[2]):
+    combinations = []
+    for talisman_1, effect_1 in list_1:
+        for talisman_2, effect_2 in list_2:
+            combinations.append((
+                talisman_1,
+                talisman_2,
+                with_talisman(
+                    weight, 
+                    threshold, 
+                    effect_1, 
+                    effect_2
+                )
+            ))
+    return sorted(combinations, key=sort_by)
+    
+def print_talisman_table(matrix):
+    print('| {:<16} | {:<16} | {:<4}'.format('Talisman 1', 'Talisman 2', 'Minimum Equip Load'))
+    for row in matrix:
+        print('| {:<16} | {:<16} | {:<4}'.format(*row))
 
-talisman_matrix(weight, talisman_list_1, talisman_list_2)
+print('Needed Equip load for fast roll', '\n')
+print("WEIGHT IS SET TO", weight, '\n')
+print_talisman_table(
+    cross_talisman_calculation(
+        weight, 
+        talisman_list_1, 
+        talisman_list_2))
